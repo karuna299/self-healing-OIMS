@@ -24,8 +24,8 @@ Features:
   - IMS application exposed via NodePort for external access.
   - Grafana can be used locally to visualize Prometheus metrics (scraping the ClusterIP Prometheus endpoint).
 
-Architecture:
-
+## Architecture:
+```
 +---------------------------------------------------------+
 | IMS Application                                         |
 | - Exposed via NodePort                                  |
@@ -58,8 +58,9 @@ Triggers Ansible playbook on host
 | - Restarts automatically                               |
 | - Self-healing ensures continuous availability         |
 +---------------------------------------------------------+
+```
 
-Prerequisites:
+## Prerequisites:
 - Docker
 - Minikube (or any local Kubernetes cluster)
 - Python 3.x
@@ -67,27 +68,29 @@ Prerequisites:
 - Prometheus configured as ClusterIP
 - Grafana installed locally (optional for metrics visualization)
 
-Setup Instructions:
+## Setup Instructions:
 
 1. Clone the repository:
 git clone <your-repo-url>
 cd self-healing-oims
 
 2. Build and deploy Webhook Receiver:
+```
 docker build -t ansible-webhook-receiver -f Dockerfile .
 kubectl apply -f deployment.yaml -n incident-mgmt
 kubectl get pods -n incident-mgmt
+```
 
 3. Deploy IMS Application (NodePort):
-kubectl apply -f incident-app-deployment.yaml -n incident-mgmt
+- kubectl apply -f incident-app-deployment.yaml -n incident-mgmt
 # Access the app using Minikube service
-minikube service incident-app -n incident-mgmt
+- minikube service incident-app -n incident-mgmt --url
 
 4. Host-Based Monitoring Script:
 chmod +x monitor_alerts.sh
 ./monitor_alerts.sh
 # The script monitors webhook pod logs for HTTP 200 responses and triggers Ansible:
-ansible-playbook /home/karuna/intern-elevate/self-healing-oims/ansible/restart_oims.yml -i localhost,
+- ansible-playbook /path/to/ansible/restart_oims.yml -i localhost,
 
 5. Prometheus:
 - Prometheus runs as a ClusterIP service in Kubernetes.
@@ -99,12 +102,14 @@ ansible-playbook /home/karuna/intern-elevate/self-healing-oims/ansible/restart_o
 - Add Prometheus as a data source using the ClusterIP URL.
 - Create dashboards to visualize IMS metrics.
 
-Kubernetes Commands:
+## Kubernetes Commands:
+```
 kubectl get pods -n incident-mgmt
 kubectl logs -f <webhook-pod-name> -n incident-mgmt
 kubectl scale deployment incident-app --replicas=0 -n incident-mgmt
 kubectl scale deployment incident-app --replicas=1 -n incident-mgmt
 kubectl get svc incident-app -n incident-mgmt
+```
 
 Tech Stack:
 - Python Flask (webhook + IMS backend)
