@@ -1,0 +1,8 @@
+incident-management-system/__pycache__/
+incident-management-system/app/__pycache__/
+*.pyc
+incident-management-system/.env
+.venv/
+venv/
+incident-management-system/k8s/secret.yaml
+incident-management-system/instance/site.db

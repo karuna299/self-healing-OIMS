@@ -1,0 +1,27 @@
+- name: Self-healing IncidentApp
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  vars:
+    namespace: incident-mgmt
+    deployment_name: incident-app
+
+  tasks:
+
+    - name: Check if deployment exists
+      command: kubectl get deployment {{ deployment_name }} -n {{ namespace }}
+      register: deploy_check
+      ignore_errors: yes
+
+    - name: Scale up deployment if exists
+      command: kubectl scale deployment {{ deployment_name }} --replicas=1 -n {{ namespace }}
+      when: deploy_check.rc == 0
+
+    - name: Wait until deployment is available
+      command: kubectl wait --for=condition=available deployment/{{ deployment_name }} -n {{ namespace }} --timeout=120s
+      when: deploy_check.rc == 0
+
+    - name: Restart deployment if needed
+      command: kubectl rollout restart deployment {{ deployment_name }} -n {{ namespace }}
+      when: deploy_check.rc == 0

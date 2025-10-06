@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansible-webhook-receiver
+  namespace: incident-mgmt
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ansible-webhook-receiver
+  template:
+    metadata:
+      labels:
+        app: ansible-webhook-receiver
+    spec:
+      containers:
+        - name: ansible-webhook-receiver
+          image: calix114/ansible-webhook-receiver:v2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5001
+          env:
+            - name: OIMS_API
+              value: "http://incident-app-service.incident-mgmt.svc.cluster.local/incidents/new"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ansible-webhook-service
+  namespace: incident-mgmt
+spec:
+  selector:
+    app: ansible-webhook-receiver
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001
